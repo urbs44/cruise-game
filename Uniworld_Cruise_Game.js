@@ -1,8 +1,7 @@
 class BootScene extends Phaser.Scene {
     constructor() { super('BootScene'); }
     preload() { 
-        console.log("BootScene: Preloading assets");
-        this.load.image('loading', 'assets/loading.png');
+        console.log("BootScene: Skipping loading image since it's missing.");
     }
     create() { this.scene.start('PreloadScene'); }
 }
@@ -15,6 +14,8 @@ class PreloadScene extends Phaser.Scene {
         this.load.image('river', 'assets/river.png');
         this.load.image('ship', 'assets/ship.png');
         this.load.image('castle', 'assets/castle.png');
+
+        // Only load audio if the file exists
         this.load.audio('shutterSound', 'assets/shutter.mp3');
 
         this.load.on('filecomplete', (key) => console.log(`Loaded: ${key}`));
@@ -22,9 +23,16 @@ class PreloadScene extends Phaser.Scene {
     }
     create() {
         console.log("PreloadScene: Assets loaded successfully");
+
+        // Fix audio playback by requiring a user interaction first
+        this.input.once('pointerdown', () => {
+            this.sound.play('shutterSound');
+        });
+
         this.scene.start('MainScene');
     }
 }
+
 
 class MainScene extends Phaser.Scene {
     constructor() { super('MainScene'); }
