@@ -1,7 +1,7 @@
 class BootScene extends Phaser.Scene {
     constructor() { super('BootScene'); }
     preload() { 
-        console.log("BootScene: Skipping loading image since it's missing.");
+        console.log("BootScene: Preloading assets");
     }
     create() { this.scene.start('PreloadScene'); }
 }
@@ -14,8 +14,6 @@ class PreloadScene extends Phaser.Scene {
         this.load.image('river', 'assets/river.png');
         this.load.image('ship', 'assets/ship.png');
         this.load.image('castle', 'assets/castle.png');
-
-        // Only load audio if the file exists
         this.load.audio('shutterSound', 'assets/shutter.mp3');
 
         this.load.on('filecomplete', (key) => console.log(`Loaded: ${key}`));
@@ -23,54 +21,72 @@ class PreloadScene extends Phaser.Scene {
     }
     create() {
         console.log("PreloadScene: Assets loaded successfully");
-
-        // Fix audio playback by requiring a user interaction first
-        this.input.once('pointerdown', () => {
-            this.sound.play('shutterSound');
-        });
-
         this.scene.start('MainScene');
     }
 }
-
 
 class MainScene extends Phaser.Scene {
     constructor() { super('MainScene'); }
     create() {
         console.log("MainScene: Creating river background");
         this.background = this.add.tileSprite(400, 300, 1600, 600, 'river');
-        
-        console.log("MainScene: Adding ship");
-        this.ship = this.add.image(200, 500, 'ship').setScale(0.6);
-        
-        this.tweens.add({
-            targets: this.ship,
-            x: 600,
-            duration: 12000,
-            ease: 'Linear',
-            yoyo: true,
-            repeat: -1
+
+        console.log("MainScene: Adding ship with movement controls");
+        this.ship = this.physics.add.sprite(200, 500, 'ship').setScale(0.6);
+        this.ship.setCollideWorldBounds(true);
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+        console.log("MainScene: Adding destinations");
+        this.destinations = [
+            { name: "Cologne", x: 400, y: 280, image: "castle", info: "Cologne: Famous for its Gothic Cathedral!" },
+            { name: "Strasbourg", x: 600, y: 280, image: "castle", info: "Strasbourg: A mix of French & German culture." },
+            { name: "Basel", x: 800, y: 280, image: "castle", info: "Basel: The cultural hub of Switzerland!" }
+        ];
+
+        this.destinationSprites = [];
+        this.destinations.forEach(dest => {
+            let sprite = this.add.image(dest.x, dest.y, dest.image).setScale(0.45);
+            sprite.setInteractive();
+            sprite.on('pointerdown', () => this.showDestinationInfo(dest.info));
+            this.destinationSprites.push(sprite);
         });
 
-        console.log("MainScene: Adding points of interest");
-        this.castle = this.add.image(400, 280, 'castle').setScale(0.45);
-        this.castle.setInteractive();
-        this.castle.on('pointerdown', () => {
-            alert("You have reached a historic castle! Enjoy the view!");
-        });
-
-        this.ship.depth = 1; 
-        this.castle.depth = 2;
-
-        this.add.text(200, 20, 'Uniworld Cruise: Amsterdam to Basel', { fontSize: '24px', fill: '#ffffff' });
+        this.add.text(180, 20, 'Uniworld Cruise: Amsterdam to Basel', { fontSize: '24px', fill: '#ffffff' });
+        this.visitedDestinations = new Set();
     }
 
     update() {
         this.background.tilePositionX += 0.5;
+        
+        if (this.cursors.left.isDown) {
+            this.ship.setVelocityX(-100);
+        } else if (this.cursors.right.isDown) {
+            this.ship.setVelocityX(100);
+        } else {
+            this.ship.setVelocityX(0);
+        }
+
+        this.destinationSprites.forEach((sprite, index) => {
+            if (Phaser.Math.Distance.Between(this.ship.x, this.ship.y, sprite.x, sprite.y) < 50) {
+                let dest = this.destinations[index];
+                if (!this.visitedDestinations.has(dest.name)) {
+                    this.visitedDestinations.add(dest.name);
+                    this.showDestinationInfo(dest.info);
+                }
+            }
+        });
+
+        if (this.visitedDestinations.size === this.destinations.length) {
+            this.add.text(250, 550, 'Cruise Completed! 🎉', { fontSize: '24px', fill: '#ffcc00' });
+        }
+    }
+
+    showDestinationInfo(info) {
+        let popup = this.add.text(150, 100, info, { fontSize: '20px', fill: '#ffffff', backgroundColor: '#000000', padding: { x: 10, y: 5 } });
+        setTimeout(() => popup.destroy(), 3000);
     }
 }
 
-// Initial game setup using Phaser.js
 const config = {
     type: Phaser.AUTO,
     width: 800,
