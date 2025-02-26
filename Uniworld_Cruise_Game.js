@@ -38,14 +38,15 @@ class MainScene extends Phaser.Scene {
 
         console.log("MainScene: Adding destinations");
         this.destinations = [
-            { name: "Cologne", x: 400, y: 280, image: "castle", info: "Cologne: Famous for its Gothic Cathedral!" },
-            { name: "Strasbourg", x: 600, y: 280, image: "castle", info: "Strasbourg: A mix of French & German culture." },
-            { name: "Basel", x: 800, y: 280, image: "castle", info: "Basel: The cultural hub of Switzerland!" }
+            { name: "Cologne", x: 300, y: 320, image: "castle", info: "Cologne: Famous for its Gothic Cathedral!" },
+            { name: "Strasbourg", x: 500, y: 300, image: "castle", info: "Strasbourg: A mix of French & German culture." },
+            { name: "Basel", x: 700, y: 280, image: "castle", info: "Basel: The cultural hub of Switzerland!" }
         ];
 
         this.destinationSprites = [];
-        this.destinations.forEach(dest => {
+        this.destinations.forEach((dest, index) => {
             let sprite = this.add.image(dest.x, dest.y, dest.image).setScale(0.45);
+            sprite.setOrigin(0.5);
             sprite.setInteractive();
             sprite.on('pointerdown', () => this.showDestinationInfo(dest.info));
             this.destinationSprites.push(sprite);
