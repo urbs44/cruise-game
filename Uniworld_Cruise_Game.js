@@ -12,10 +12,10 @@ class PreloadScene extends Phaser.Scene {
     preload() {
         console.log("PreloadScene: Loading game assets...");
 
-        this.load.image('river', '/assets/river.png');
-        this.load.image('ship', '/assets/ship.png');
-        this.load.image('castle', '/assets/castle.png');
-        this.load.audio('shutterSound', '/assets/shutter.mp3');
+        this.load.image('river', 'assets/river.png');
+        this.load.image('ship', 'assets/ship.png');
+        this.load.image('castle', 'assets/castle.png');
+        this.load.audio('shutterSound', 'assets/shutter.mp3');
 
         this.load.on('filecomplete', (key) => console.log(`Loaded: ${key}`));
         this.load.on('loaderror', (file) => console.error(`Failed to load: ${file.src}`));
@@ -28,17 +28,16 @@ class PreloadScene extends Phaser.Scene {
 
 class MainScene extends Phaser.Scene {
     constructor() { super('MainScene'); }
-
     create() {
         console.log("MainScene: Creating river background");
-        this.background = this.add.tileSprite(400, 300, 1600, 600, 'river'); // Wider background to scroll smoothly
-
+        this.background = this.add.tileSprite(400, 300, 1600, 600, 'river');
+        
         console.log("MainScene: Adding ship");
-        this.ship = this.add.image(200, 500, 'ship').setScale(0.6); // Lower position to align with river
+        this.ship = this.add.image(200, 500, 'ship').setScale(0.6);
         
         this.tweens.add({
             targets: this.ship,
-            x: 600, // Ship moves more naturally
+            x: 600,
             duration: 12000,
             ease: 'Linear',
             yoyo: true,
@@ -46,13 +45,12 @@ class MainScene extends Phaser.Scene {
         });
 
         console.log("MainScene: Adding points of interest");
-        this.castle = this.add.image(400, 280, 'castle').setScale(0.45); // Adjusted to fit naturally in the scene
+        this.castle = this.add.image(400, 280, 'castle').setScale(0.45);
         this.castle.setInteractive();
         this.castle.on('pointerdown', () => {
             alert("You have reached a historic castle! Enjoy the view!");
         });
 
-        // Ensure correct layering so ship stays in front of the river
         this.ship.depth = 1; 
         this.castle.depth = 2;
 
@@ -60,7 +58,7 @@ class MainScene extends Phaser.Scene {
     }
 
     update() {
-        this.background.tilePositionX += 0.5; // Slower background movement for a smooth cruise effect
+        this.background.tilePositionX += 0.5;
     }
 }
 
