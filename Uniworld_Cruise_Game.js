@@ -12,10 +12,10 @@ class PreloadScene extends Phaser.Scene {
     preload() {
         console.log("PreloadScene: Loading game assets...");
 
-        this.load.image('river', 'assets/river.png');
-        this.load.image('ship', 'assets/ship.png');
-        this.load.image('castle', 'assets/castle.png');
-        this.load.audio('shutterSound', 'assets/shutter.mp3');
+        this.load.image('river', '/assets/river.png');
+        this.load.image('ship', '/assets/ship.png');
+        this.load.image('castle', '/assets/castle.png');
+        this.load.audio('shutterSound', '/assets/shutter.mp3');
 
         this.load.on('filecomplete', (key) => console.log(`Loaded: ${key}`));
         this.load.on('loaderror', (file) => console.error(`Failed to load: ${file.src}`));
@@ -33,7 +33,8 @@ class MainScene extends Phaser.Scene {
         this.background = this.add.tileSprite(400, 300, 800, 600, 'river');
         
         console.log("MainScene: Adding ship");
-        this.ship = this.add.image(400, 500, 'ship').setScale(0.5);
+        this.ship = this.add.image(400, 550, 'ship').setScale(0.7);
+        
         this.tweens.add({
             targets: this.ship,
             x: 700,
@@ -44,16 +45,20 @@ class MainScene extends Phaser.Scene {
         });
         
         console.log("MainScene: Adding points of interest");
-        this.castle = this.add.image(300, 300, 'castle').setScale(0.5);
+        this.castle = this.add.image(400, 300, 'castle').setScale(0.5);
         this.castle.setInteractive();
         this.castle.on('pointerdown', () => {
             alert("You have reached a historic castle! Enjoy the view!");
         });
-        
-        this.add.text(250, 50, 'Uniworld Cruise: Amsterdam to Basel', { fontSize: '24px', fill: '#ffffff' });
+
+        // Ensure correct layering so the ship doesn't overlap landmarks
+        this.ship.depth = 1; 
+        this.castle.depth = 2;
+
+        this.add.text(220, 20, 'Uniworld Cruise: Amsterdam to Basel', { fontSize: '24px', fill: '#ffffff' });
     }
     update() {
-        this.background.tilePositionX += 1;
+        this.background.tilePositionX += 1; // Keep scrolling effect
     }
 }
 
